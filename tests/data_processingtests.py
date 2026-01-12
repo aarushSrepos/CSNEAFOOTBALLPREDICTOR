@@ -1,14 +1,16 @@
-from data_processing.CleanMatches import CalculateForm, HeadtoHeadMatchStatistics
+from data_processing.CleanMatches import (CalculateForm, HeadtoHeadMatchStatistics, SeasonGoalScoringRate, SeasonConcedingRate, HomeAwayAdvantage, TeamFeatures)
 from data_collection.DataCollection import GetTeamID
-
+import time
 TEAM_ARSENAL = GetTeamID("Arsenal FC")
 TEAM_CHELSEA = GetTeamID("Chelsea FC")
 
-DATE_FROM = "2024-08-01"
-DATE_TO = "2024-12-31"
+DateFrom = "2024-08-01"
+DateTo = "2025-06-01"
+FuturematchDate = '2026-03-01'
 
-form = CalculateForm(TEAM_ARSENAL, DATE_FROM, DATE_TO, None)
-print("Form:", form)
 
-h2h = HeadtoHeadMatchStatistics(DATE_FROM, DATE_TO, TEAM_ARSENAL, TEAM_CHELSEA)
-print("Head-to-head:", h2h)
+
+ChelseaFeatures = TeamFeatures(DateFrom, DateTo, TEAM_ARSENAL, TEAM_CHELSEA, FuturematchDate, False)
+print('Chelsea features', ChelseaFeatures)
+ArsenalFeatures = TeamFeatures(DateFrom, DateTo, TEAM_ARSENAL, TEAM_CHELSEA, FuturematchDate, True)
+print('Arsenal features', ArsenalFeatures)

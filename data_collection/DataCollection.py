@@ -1,5 +1,5 @@
 import requests
-API_KEY = ""
+API_KEY = "e9eb18b48bab496db3160863769ac54d"
 BASE_URL = "https://api.football-data.org/v4"
 headers = {"X-Auth-Token": API_KEY}
 
@@ -91,3 +91,16 @@ def GetFutureMatches(TeamID):
     response = requests.get(url, headers=headers, params=params)
     Futurematches = response.json()["matches"]
     return Futurematches
+
+
+def GetMatches(season):
+    url = f"{BASE_URL}/competitions/PL/matches"
+    conditions = {
+        "season": season
+    }
+    response = requests.get(url, headers=headers, params=conditions)
+
+    if response.status_code == 200:
+        return response.json()["matches"]
+    else:
+        return True
