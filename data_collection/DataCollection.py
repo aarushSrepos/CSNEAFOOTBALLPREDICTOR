@@ -17,13 +17,12 @@ def GetTeamID(TeamName):
 
       return TeamID
     else:
-      RateLimit = True
-      return RateLimit
+      return -1
       
        
 
 
-def HeadtoHeadMatches(DateFrom, DateTo, Team1, Team2):
+def HeadtoHeadMatches(DateFrom, DateTo, Team1, Team2, matches):
     RateLimit = False
     url = f"{BASE_URL}/teams/{Team1}/matches"
     conditions = {
@@ -31,10 +30,7 @@ def HeadtoHeadMatches(DateFrom, DateTo, Team1, Team2):
     "dateFrom": f'{DateFrom}',
     "dateTo": f'{DateTo}'
     }
-    response = requests.get(url, headers=headers, params=conditions)
-
-    if response.status_code == 200:
-      matches = response.json()["matches"]
+    if matches is not None:
       HeadtoHeadMatchList = []
       for match in matches:
           home = match["homeTeam"]["id"]
@@ -47,13 +43,29 @@ def HeadtoHeadMatches(DateFrom, DateTo, Team1, Team2):
               continue
 
       return HeadtoHeadMatchList
+    
+    response = requests.get(url, headers=headers, params=conditions)
+
+    if response.status_code == 200:
+      matches = response.json()["matches"]
+      HeadtoHeadMatchList = []
+      for match in matches:
+          home = match["homeTeam"]["id"]
+          away = match["awayTeam"]["id"]
+          if home == Team1 and away == Team2:
+              HeadtoHeadMatchList.append(match)
+          elif home == Team2 and away == Team1:
+              HeadtoHeadMatchList.append(match)
+          else:
+              continue
+
+      return HeadtoHeadMatchList
     else:
-      RateLimit = True
-      return RateLimit
+      return -1
 
 
 
-def SeasonRecord(DateFrom, DateTo, TeamID, Past):
+def SeasonRecord(DateFrom, DateTo, TeamID, Past, matches):
       
     RateLimit = False
     url = f"{BASE_URL}/teams/{TeamID}/matches"
@@ -67,40 +79,49 @@ def SeasonRecord(DateFrom, DateTo, TeamID, Past):
       conditions = {
         "status": "SCHEDULED",
         }
-          
+    
+    if matches is not None:
+      TeamMatches = []
+      for match in matches:
+        if match["homeTeam"]["id"] == TeamID or match["awayTeam"]["id"] == TeamID:
+          TeamMatches.append(match)
+      return TeamMatches
+    
     response = requests.get(url, headers=headers, params=conditions)
     if response.status_code == 200:
       matches = response.json()["matches"]
       return matches
     else:
-      RateLimit = True
-      return RateLimit
-
-    return matches
+      return -1
 
 
-def GetFutureMatches(TeamID):
+def GetFutureMatches(TeamID, Date, singularMatch):
   if TeamID is not None:
-      Futurematches = SeasonRecord(None, None, TeamID, False)
-      return Futurematches
-  else:
-    url = f'{BASE_URL}/competitions/PL/matches'
-    params = {
-        "status": "SCHEDULED",
-    }
-    response = requests.get(url, headers=headers, params=params)
-    Futurematches = response.json()["matches"]
-    return Futurematches
+      Futurematches = SeasonRecord(None, None, TeamID, False, None)
+      if singularMatch == True:
+            
+        WantedMatch = []
+
+        for match in Futurematches:
+          if match["utcDate"][:10] == Date and (match["homeTeam"]["id"] == TeamID or match["awayTeam"]["id"] == TeamID):
+              WantedMatch = match
+              if match["homeTeam"]["id"] == TeamID:
+                return WantedMatch, match["awayTeam"]["id"]
+              else:
+                return WantedMatch, match["homeTeam"]["id"]
+                
+      else:
+            return Futurematches
 
 
 def GetMatches(season):
     url = f"{BASE_URL}/competitions/PL/matches"
     conditions = {
-        "season": season
+        "season": f"{season}"
     }
     response = requests.get(url, headers=headers, params=conditions)
 
     if response.status_code == 200:
         return response.json()["matches"]
     else:
-        return True
+        return -1
