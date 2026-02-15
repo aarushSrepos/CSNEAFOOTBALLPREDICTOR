@@ -6,7 +6,18 @@ from dataMaintenance.PredictionHandling import GetExistingPrediction, update_pre
 from dataMaintenance.UserFavourites import add_favourite_team, remove_favourite_team, get_user_favourites, TeamIDtoTeamname
 from data_collection.DataCollection import GetFutureMatches, GetMatches
 import xgboost as xgb
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],#Allows requests from any device
+    allow_credentials=True,#allows authorisation headers
+    allow_methods=["*"],# allows all CRUD methods
+    allow_headers=["*"],#allows HTTP headers
+)
+
 # All endpoints follow the same pattern:
 # 1. Establish database connection
 # 2. Call a dedicated backend function
@@ -14,7 +25,7 @@ app = FastAPI()
 
 
    
-#to prevent requests being slowed down unnecssarily, I have loaded the model at the start of the program so that each endpoint which needs to use it can call it from here, as it is a gloabl variable here, this prevents uneccesary requests  
+#to prevent requests being slowed down unnecessarily, I have loaded the model at the start of the program so that each endpoint which needs to use it can call it from here, as it is a gloabl variable here, this prevents uneccesary requests  
 model = xgb.Booster()#initialises an empty xgboost model
 model.load_model('MLprediction/models/Model.json')#loads the paramters made by training function
 
