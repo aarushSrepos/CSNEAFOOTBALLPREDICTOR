@@ -75,7 +75,7 @@ from database.DbManager import connect
 import xgboost as xgb
 from dataMaintenance.authentication import login, signup
 from dataMaintenance.UserFavourites import add_favourite_team, remove_favourite_team, get_user_favourites, TeamIDtoTeamname
-
+from data_collection.DataCollection import GetMatches
 """
 connection = connect()
 model = xgb.Booster()
@@ -87,7 +87,7 @@ print('')
 print(update_prediction(connection, 537975, model))
 
 """
-
+"""
 connection = connect()
 print(connection)
 # Signup
@@ -104,3 +104,6 @@ user = login(connection, "test@email.com", "Password123")
 
 # Remove favourite
 remove_favourite_team(connection, user[0]['userid'], 57)
+"""
+
+print(GetMatches(2025))
