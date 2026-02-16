@@ -182,9 +182,9 @@ def dashboard_data(userid: int):
                 "home": match["homeTeam"]["name"],
                 "away": match["awayTeam"]["name"],
                 "date": date,
-                "win": float(probs[0][0]),
-                "draw": float(probs[0][1]),
-                "loss": float(probs[0][2])
+                "win": float(probs[0]),
+                "draw": float(probs[1]),
+                "loss": float(probs[2])
             })
 
     return {
