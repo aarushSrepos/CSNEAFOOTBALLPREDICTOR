@@ -50,8 +50,8 @@ def signup_route(user: AuthRequest):#This assigns the JSON data to an insatnce o
     return {
         "status": "success",
         "user": {
-            "userid": result["userid"],
-            "email": result["email"]
+            "userid": result[0]["userid"],
+            "email": result[0]["email"]
         }
     }
 
@@ -66,7 +66,10 @@ def login_route(user: AuthRequest):#same logic as signup
 
     return {
         "status": "success",
-        "user": result
+        "user": {
+            "userid": result[0]["userid"],
+            "email": result[0]["email"]
+        }
     }
 
 
