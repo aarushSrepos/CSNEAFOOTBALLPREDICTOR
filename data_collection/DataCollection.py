@@ -92,6 +92,7 @@ def SeasonRecord(DateFrom, DateTo, TeamID, Past, matches):
       matches = response.json()["matches"]
       return matches
     else:
+      print(response.status_code)
       return -1
 
 
