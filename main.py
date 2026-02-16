@@ -129,7 +129,7 @@ def getMatchesRoute(season: int):
         return {"status": "success", "SeasonMatches": SeasonMatches}       
         
 @app.get('/getfuturematches/{TeamID}/{Date}/{singularMatch}')
-def FutureMatchRoute(TeamID: int, date: str, singularMatch: str):
+def FutureMatchRoute(TeamID: int, Date: str, singularMatch: str):
     connection = connect()
     if TeamID == 0 and Date == '0':
         TeamID = None
