@@ -123,10 +123,14 @@ def TeamIDtoTeamnameRoute(teamid: int):
 def getMatchesRoute(season: int):
     connection = connect()
     SeasonMatches = GetMatches(season)
+    ScheduledMatches = []
+    for match in SeasonMatches:
+        if match.status == "SCHEDULED":
+            ScheduledMatches.append(match)
     if SeasonMatches == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "SeasonMatches": SeasonMatches}       
+        return {"status": "success", "SeasonMatches": ScheduledMatches}       
         
 @app.get('/getfuturematches/{TeamID}/{Date}/{singularMatch}')
 def FutureMatchRoute(TeamID: int, Date: str, singularMatch: str):
