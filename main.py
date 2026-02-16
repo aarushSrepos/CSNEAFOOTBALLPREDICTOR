@@ -138,7 +138,7 @@ def FutureMatchRoute(TeamID: int, date: str, singularMatch: str):
         singularMatch = False
     else:
         singularMatch = True
-    FutureMatch = GetFutureMatches(TeamID, date, singularMatch)
+    FutureMatch = GetFutureMatches(TeamID, Date, singularMatch)
     if FutureMatch == -1:
         return {"status": "error"}
     else:
