@@ -77,33 +77,6 @@ def GetExistingPredictionRoute(matchid: int):# A pydantic model isnt used here a
     else:
         return jsonable_encoder({"status": "success", "existingPrediction": Prediction})
 
-@app.put('/updateprediction/{matchid}')
-def updatePredictionRoute(matchid: int):
-    connection = connect()
-    UpdatedPrediction = update_prediction(connection, matchid, model)
-    if UpdatedPrediction == -1:
-        return {"status": "error"}
-    else:
-        return jsonable_encoder({"status": "success", "UpdatedPrediction": UpdatedPrediction})
-
-@app.post('/createprediction/{matchid}')
-def CreatePredictionRoute(matchid: int):
-    connection = connect()
-    NewPrediction = CreatePrediction(connection, matchid, model)
-    if NewPrediction == -1:
-        return {"status": "error"}
-    else:
-        return jsonable_encoder({"status": "success", "NewPrediction": NewPrediction})
-
-@app.get('/getUIprediction/{matchid}')
-def UIpredictionRoute(matchid: int):
-    connection = connect()
-    PredictionUI = getPredictionForUI(connection, matchid, model)
-    if PredictionUI == -1:
-        return {"status": "error"}
-    else:
-        return jsonable_encoder({"status": "success", "UIprediction": PredictionUI})
-
 
 @app.post('/addfavouriteteam/{userid}/{teamid}')
 def AddFavouriteTeamRoute(userid: int , teamid: int):
@@ -150,11 +123,47 @@ def getMatchesRoute(season: int):
     else:
         return jsonable_encoder({"status": "success", "SeasonMatches": SeasonMatches})   
         
-@app.get('/getfuturematches/{TeamID}/{Date}/{singularMatch}')
-def FutureMatchRoute(TeamID: int, date: str, singularMatch: bool):
+ 
+
+@app.get("/dashboarddata/{userid}")
+def dashboard_data(userid: int):
     connection = connect()
-    FutureMatch = GetFutureMatches(TeamID, date, singularMatch)
-    if FutureMatch == -1:
+
+    # Get favourites
+    favourites = get_user_favourites(connection, userid)
+    if favourites == -1:
         return {"status": "error"}
-    else:
-        return jsonable_encoder({"status": "success", "FutureMatch": FutureMatch})   
+
+    all_matches = []
+
+    for fav in favourites:
+        teamid = fav["teamid"]
+
+        #Get all future matches
+        future_matches = GetFutureMatches(teamid, None, False)
+
+        if future_matches is None:
+            continue
+
+        for match in future_matches:
+            home_id = match["homeTeam"]["id"]
+            away_id = match["awayTeam"]["id"]
+            date = match["utcDate"][:10]
+
+            # Generate prediction directly
+            dataset = FuturematchDataset(date, home_id)
+            probs = PredictFutureMatches(model, dataset)[0]
+
+            all_matches.append({
+                "home": match["homeTeam"]["name"],
+                "away": match["awayTeam"]["name"],
+                "date": date,
+                "win": float(probs[0]),
+                "draw": float(probs[1]),
+                "loss": float(probs[2])
+            })
+
+    return jsonable_encoder({
+        "status": "success",
+        "matches": all_matches
+    })
