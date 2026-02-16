@@ -8,7 +8,7 @@ from data_collection.DataCollection import GetFutureMatches, GetMatches
 import xgboost as xgb
 from fastapi.middleware.cors import CORSMiddleware
 from MLprediction.Datasets import FuturematchDataset
-from MLprediction.prediciton import PredictFutureMatches
+from MLprediction.prediction import PredictFutureMatches
 app = FastAPI()
 
 
