@@ -112,6 +112,9 @@ def GetFutureMatches(TeamID, Date, singularMatch):
                 
       else:
             return Futurematches
+  else:
+      Futurematches = SeasonRecord(None, None, None, False, None)
+      return Futurematches
 
 
 def GetMatches(season):

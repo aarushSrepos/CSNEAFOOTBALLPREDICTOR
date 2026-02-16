@@ -7,7 +7,6 @@ from dataMaintenance.UserFavourites import add_favourite_team, remove_favourite_
 from data_collection.DataCollection import GetFutureMatches, GetMatches
 import xgboost as xgb
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.encoders import jsonable_encoder
 
 app = FastAPI()
 
@@ -129,7 +128,14 @@ def getMatchesRoute(season: int):
     else:
         return {"status": "success", "SeasonMatches": SeasonMatches}       
         
- 
+@app.get('/getfuturematches/{TeamID}/{Date}/{singularMatch}')
+def FutureMatchRoute(TeamID: int, date: str, singularMatch: bool):
+    connection = connect()
+    FutureMatch = GetFutureMatches(TeamID, date, singularMatch)
+    if FutureMatch == -1:
+        return {"status": "error"}
+    else:
+        return {"status": "success", "FutureMatch": FutureMatch}
 
 @app.get("/dashboarddata/{userid}")
 def dashboard_data(userid: int):
