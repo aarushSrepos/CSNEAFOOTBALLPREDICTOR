@@ -47,10 +47,13 @@ def signup_route(user: AuthRequest):#This assigns the JSON data to an insatnce o
     if result == -1:#adding a status allows the frontend to deal with the logic of either receiving data or not better
         return {"status": "error"}
     # Only return serializable fields
-    return jsonable_encoder({
+    return {
         "status": "success",
-        "user": result
-    })
+        "user": {
+            "userid": result["userid"],
+            "email": result["email"]
+        }
+    }
 
 
 @app.post("/login")
@@ -61,10 +64,10 @@ def login_route(user: AuthRequest):#same logic as signup
     if result == -1:
         return {"status": "error"}
 
-    return jsonable_encoder({
+    return {
         "status": "success",
         "user": result
-    })
+    }
 
 
 
@@ -75,7 +78,7 @@ def GetExistingPredictionRoute(matchid: int):# A pydantic model isnt used here a
     if Prediction == -1:
         return {"status": "error"}
     else:
-        return jsonable_encoder({"status": "success", "existingPrediction": Prediction})
+        return {"status": "success", "existingPrediction": Prediction}
 
 
 @app.post('/addfavouriteteam/{userid}/{teamid}')
@@ -85,7 +88,7 @@ def AddFavouriteTeamRoute(userid: int , teamid: int):
     if AddedTeam == -1:
         return {"status": "error"}
     else:
-        return jsonable_encoder({"status": "success", "NewTeamFavourite": AddedTeam})
+        return {"status": "success", "NewTeamFavourite": AddedTeam}
    
 @app.delete('/deletefavouriteteam/{userid}/{teamid}')
 def RemoveFavouriteTeamRoute(userid: int, teamid: int):
@@ -94,7 +97,7 @@ def RemoveFavouriteTeamRoute(userid: int, teamid: int):
     if TeamRemoved == -1:
         return {"status": "error"}
     else:
-        return jsonable_encoder({"status": "success", "TeamRemoved": TeamRemoved})
+        return {"status": "success", "TeamRemoved": TeamRemoved}
 
 @app.get('/usersfavouriteteams/{userid}')
 def GetUserFavouriteTeams(userid: int):
@@ -103,7 +106,7 @@ def GetUserFavouriteTeams(userid: int):
     if UserFavourites == -1:
         return {"status": "error"}
     else:
-        return jsonable_encoder({"status": "success", "UserFavourites": UserFavourites})   
+        return {"status": "success", "UserFavourites": UserFavourites}   
 
 @app.get('/teamidNameConversion/{teamid}')
 def TeamIDtoTeamnameRoute(teamid: int):
@@ -112,7 +115,7 @@ def TeamIDtoTeamnameRoute(teamid: int):
     if TeamName == -1:
         return {"status": "error"}
     else:
-        return jsonable_encoder({"status": "success", "TeamName": TeamName})  
+        return {"status": "success", "TeamName": TeamName} 
 
 @app.get('/getmatches/{season}')
 def getMatchesRoute(season: int):
@@ -121,7 +124,7 @@ def getMatchesRoute(season: int):
     if SeasonMatches == -1:
         return {"status": "error"}
     else:
-        return jsonable_encoder({"status": "success", "SeasonMatches": SeasonMatches})   
+        return {"status": "success", "SeasonMatches": SeasonMatches}       
         
  
 
@@ -163,7 +166,7 @@ def dashboard_data(userid: int):
                 "loss": float(probs[2])
             })
 
-    return jsonable_encoder({
+    return {
         "status": "success",
         "matches": all_matches
-    })
+    }
