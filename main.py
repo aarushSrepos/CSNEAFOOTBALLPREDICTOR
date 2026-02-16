@@ -7,6 +7,8 @@ from dataMaintenance.UserFavourites import add_favourite_team, remove_favourite_
 from data_collection.DataCollection import GetFutureMatches, GetMatches
 import xgboost as xgb
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
+
 app = FastAPI()
 
 
@@ -45,14 +47,10 @@ def signup_route(user: AuthRequest):#This assigns the JSON data to an insatnce o
     if result == -1:#adding a status allows the frontend to deal with the logic of either receiving data or not better
         return {"status": "error"}
     # Only return serializable fields
-    return {
+    return jsonable_encoder({
         "status": "success",
-        "user": {
-            "id": result[0]['userid'],        # make sure 'id' is serializable
-            "email": result[0]['email']
-        }
-    }
-    #return {"status": "success", "user": result}
+        "user": result
+    })
 
 
 @app.post("/login")
@@ -63,7 +61,10 @@ def login_route(user: AuthRequest):#same logic as signup
     if result == -1:
         return {"status": "error"}
 
-    return {"status": "success", "user": result}
+    return jsonable_encoder({
+        "status": "success",
+        "user": result
+    })
 
 
 
@@ -74,7 +75,7 @@ def GetExistingPredictionRoute(matchid: int):# A pydantic model isnt used here a
     if Prediction == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "existingPrediction": Prediction}
+        return jsonable_encoder({"status": "success", "existingPrediction": Prediction})
 
 @app.put('/updateprediction/{matchid}')
 def updatePredictionRoute(matchid: int):
@@ -83,7 +84,7 @@ def updatePredictionRoute(matchid: int):
     if UpdatedPrediction == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "UpdatedPrediction": UpdatedPrediction}
+        return jsonable_encoder({"status": "success", "UpdatedPrediction": UpdatedPrediction})
 
 @app.post('/createprediction/{matchid}')
 def CreatePredictionRoute(matchid: int):
@@ -92,7 +93,7 @@ def CreatePredictionRoute(matchid: int):
     if NewPrediction == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "NewPrediction": NewPrediction}
+        return jsonable_encoder({"status": "success", "NewPrediction": NewPrediction})
 
 @app.get('/getUIprediction/{matchid}')
 def UIpredictionRoute(matchid: int):
@@ -101,7 +102,7 @@ def UIpredictionRoute(matchid: int):
     if PredictionUI == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "UIprediction": PredictionUI}
+        return jsonable_encoder({"status": "success", "UIprediction": PredictionUI})
 
 
 @app.post('/addfavouriteteam/{userid}/{teamid}')
@@ -111,7 +112,7 @@ def AddFavouriteTeamRoute(userid: int , teamid: int):
     if AddedTeam == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "NewTeamFavourite": AddedTeam}
+        return jsonable_encoder({"status": "success", "NewTeamFavourite": AddedTeam})
    
 @app.delete('/deletefavouriteteam/{userid}/{teamid}')
 def RemoveFavouriteTeamRoute(userid: int, teamid: int):
@@ -120,7 +121,7 @@ def RemoveFavouriteTeamRoute(userid: int, teamid: int):
     if TeamRemoved == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "TeamRemoved": TeamRemoved}
+        return jsonable_encoder({"status": "success", "TeamRemoved": TeamRemoved})
 
 @app.get('/usersfavouriteteams/{userid}')
 def GetUserFavouriteTeams(userid: int):
@@ -129,7 +130,7 @@ def GetUserFavouriteTeams(userid: int):
     if UserFavourites == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "UserFavourites": UserFavourites}   
+        return jsonable_encoder({"status": "success", "UserFavourites": UserFavourites})   
 
 @app.get('/teamidNameConversion/{teamid}')
 def TeamIDtoTeamnameRoute(teamid: int):
@@ -138,7 +139,7 @@ def TeamIDtoTeamnameRoute(teamid: int):
     if TeamName == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "TeamName": TeamName}   
+        return jsonable_encoder({"status": "success", "TeamName": TeamName})  
 
 @app.get('/getmatches/{season}')
 def getMatchesRoute(season: int):
@@ -147,7 +148,7 @@ def getMatchesRoute(season: int):
     if SeasonMatches == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "SeasonMatches": SeasonMatches}   
+        return jsonable_encoder({"status": "success", "SeasonMatches": SeasonMatches})   
         
 @app.get('/getfuturematches/{TeamID}/{Date}/{singularMatch}')
 def FutureMatchRoute(TeamID: int, date: str, singularMatch: bool):
@@ -156,4 +157,4 @@ def FutureMatchRoute(TeamID: int, date: str, singularMatch: bool):
     if FutureMatch == -1:
         return {"status": "error"}
     else:
-        return {"status": "success", "FutureMatch": FutureMatch}   
+        return jsonable_encoder({"status": "success", "FutureMatch": FutureMatch})   
