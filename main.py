@@ -42,11 +42,17 @@ class AuthRequest(BaseModel):
 def signup_route(user: AuthRequest):#This assigns the JSON data to an insatnce of AuthRequest which inherits the BaseModel from pydantic which serialises the JSON data
     connection = connect()# a connection with the database is required for every transaction so this is seen in every endpoint here
     result = signup(connection, user.email, user.password)
-
     if result == -1:#adding a status allows the frontend to deal with the logic of either receiving data or not better
         return {"status": "error"}
-
-    return {"status": "success", "user": result}
+    # Only return serializable fields
+    return {
+        "status": "success",
+        "user": {
+            "id": result[0]['userid'],        # make sure 'id' is serializable
+            "email": result[0]['email']
+        }
+    }
+    #return {"status": "success", "user": result}
 
 
 @app.post("/login")
