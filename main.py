@@ -125,7 +125,7 @@ def getMatchesRoute(season: int):
     SeasonMatches = GetMatches(season)
     ScheduledMatches = []
     for match in SeasonMatches:
-        if match["status"] == "SCHEDULED":
+        if match["status"] == "TIMED":
             ScheduledMatches.append(match)
     if SeasonMatches == -1:
         return {"status": "error"}
