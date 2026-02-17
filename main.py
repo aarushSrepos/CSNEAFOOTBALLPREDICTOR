@@ -151,43 +151,36 @@ def FutureMatchRoute(TeamID: int, Date: str, singularMatch: str):
 
 @app.get("/dashboarddata/{userid}")
 def dashboard_data(userid: int):
-    connection = connect()
 
-    # Get favourites
+    connection = connect()
     favourites = get_user_favourites(connection, userid)
-    if favourites == -1:
-        return {"status": "error"}
+
+    HistoricalMatches = GetMatches(2025)
+
+    # split once
+    FinishedMatches = [m for m in HistoricalMatches if m["status"] == "FINISHED"]
+    FutureMatches = [m for m in HistoricalMatches if m["status"] == "TIMED"]
 
     all_matches = []
-    SeasonMatches = GetMatches(2025)
-    ScheduledMatches = []
-    for match in SeasonMatches:
-        if match["status"] == "TIMED":
-            ScheduledMatches.append(match)
 
     for fav in favourites:
         teamid = fav["teamid"]
 
-        
-        #Get all future matches
-        future_matches = GetFutureMatches(teamid, None, False)
+        team_future = [
+            m for m in FutureMatches
+            if m["homeTeam"]["id"] == teamid or m["awayTeam"]["id"] == teamid
+        ]
 
-        if future_matches is None:
-            continue
-
-        for match in future_matches:
+        for match in team_future:
+            date = match["utcDate"][:10]
             home_id = match["homeTeam"]["id"]
             away_id = match["awayTeam"]["id"]
-            date = match["utcDate"][:10]
 
-            # Generate prediction directly
-            dataset = FuturematchDataset(date, home_id, away_id, ScheduledMatches)
+            dataset = FuturematchDataset(date, home_id, away_id, FinishedMatches)
             probs = PredictFutureMatches(model, dataset)[0]
-            print(probs)
-            print(dataset)
 
             all_matches.append({
-                "home": match["homeTeam"]["name"],
+                 "home": match["homeTeam"]["name"],
                 "away": match["awayTeam"]["name"],
                 "date": date,
                 "win": float(probs[0]),
@@ -195,7 +188,5 @@ def dashboard_data(userid: int):
                 "loss": float(probs[2])
             })
 
-    return {
-        "status": "success",
-        "matches": all_matches
-    }
+
+         

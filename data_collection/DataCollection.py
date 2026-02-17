@@ -35,9 +35,7 @@ def HeadtoHeadMatches(DateFrom, DateTo, Team1, Team2, matches):
       for match in matches:
           home = match["homeTeam"]["id"]
           away = match["awayTeam"]["id"]
-          if home == Team1 or away == Team2:
-              HeadtoHeadMatchList.append(match)
-          elif home == Team2 or away == Team1:
+          if (home == Team1 and away == Team2) or (home == Team2 and away == Team1):
               HeadtoHeadMatchList.append(match)
           else:
               continue
@@ -68,6 +66,8 @@ def HeadtoHeadMatches(DateFrom, DateTo, Team1, Team2, matches):
 def SeasonRecord(DateFrom, DateTo, TeamID, Past, matches):
       
     RateLimit = False
+    if TeamID is None:
+        matches = GetMatches(2025)
     url = f"{BASE_URL}/teams/{TeamID}/matches"
     if Past == True:
       conditions = {

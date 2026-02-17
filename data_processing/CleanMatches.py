@@ -12,7 +12,7 @@ def HeadtoHeadMatchStatistics(DateFrom, DateTo, Team1, Team2, matches):
     if Matches == -1 or Team1Points == -1 or Team2Points == -1:
         return 0 # this can be 0 as early in the season it is possible that teams may not have played a match
     else:
-        if Team1Points != 0 and Team2Points:
+        if Team1Points != 0 and Team2Points != 0:
             Team1PointShare = Team1Points/(Team1Points+Team2Points)
             Team2PointShare = Team2Points/(Team1Points+Team2Points)
         else:
