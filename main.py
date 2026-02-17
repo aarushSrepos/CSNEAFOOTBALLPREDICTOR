@@ -175,7 +175,7 @@ def dashboard_data(userid: int):
             date = match["utcDate"][:10]
 
             # Generate prediction directly
-            dataset = FuturematchDataset(date, home_id)
+            dataset = FuturematchDataset(date, home_id, away_id)
             probs = PredictFutureMatches(model, dataset)[0]
             print(probs)
             print(dataset)
