@@ -83,9 +83,19 @@ def SeasonRecord(DateFrom, DateTo, TeamID, Past, matches):
     if matches is not None:
       TeamMatches = []
       for match in matches:
-        if match["homeTeam"]["id"] == TeamID or match["awayTeam"]["id"] == TeamID:
-          TeamMatches.append(match)
+          match_date = match["utcDate"][:10]
+
+          if (match["homeTeam"]["id"] == TeamID or 
+              match["awayTeam"]["id"] == TeamID):
+
+              if DateFrom is None or DateTo is None:
+                  TeamMatches.append(match)
+              else:
+                  if DateFrom <= match_date <= DateTo:
+                      TeamMatches.append(match)
+
       return TeamMatches
+
     
     response = requests.get(url, headers=headers, params=conditions)
     if response.status_code == 200:

@@ -178,6 +178,7 @@ def dashboard_data(userid: int):
 
             dataset = FuturematchDataset(date, home_id, away_id, FinishedMatches)
             probs = PredictFutureMatches(model, dataset)[0]
+            print("Feature vector:", dataset)
 
             all_matches.append({
                  "home": match["homeTeam"]["name"],
