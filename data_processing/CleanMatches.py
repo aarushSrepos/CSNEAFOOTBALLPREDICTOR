@@ -135,7 +135,6 @@ def TeamFeatures(DateFrom, DateTo, Team1, Team2, FuturematchDate, ReturnTeam1, c
     
 
     # CASE 1: FUTURE PREDICTION MODE
-    -----
     # We ALREADY KNOW:
     #   Team1 = home team
     #   Team2 = away team
@@ -151,7 +150,6 @@ def TeamFeatures(DateFrom, DateTo, Team1, Team2, FuturematchDate, ReturnTeam1, c
 
 
     # CASE 2: TRAINING MODE
-    -----
     # For historical matches, we must determine who was home
     # by looking up the actual finished match.
 
