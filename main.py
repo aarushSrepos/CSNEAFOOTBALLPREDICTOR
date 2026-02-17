@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dataMaintenance.authentication import login, signup 
 from database.DbManager import connect, Create, Read,Update, Delete 
-from dataMaintenance.PredictionHandling import GetExistingPrediction, update_prediction, CreatePrediction, getPredictionForUI
+from dataMaintenance.PredictionHandling import GetExistingPrediction, update_prediction, CreatePrediction, getPredictionForUI, SavePrediction
 from dataMaintenance.UserFavourites import add_favourite_team, remove_favourite_team, get_user_favourites, TeamIDtoTeamname
 from data_collection.DataCollection import GetFutureMatches, GetMatches
 import xgboost as xgb
@@ -172,12 +172,24 @@ def dashboard_data(userid: int):
         ]
 
         for match in team_future:
+            PredictionExists = GetExistingPrediction(connection, match['id'])
             date = match["utcDate"][:10]
             home_id = match["homeTeam"]["id"]
             away_id = match["awayTeam"]["id"]
+            if PredictionExists != -1:
+                all_matches.append({
+                "home": match["homeTeam"]["name"],
+                "away": match["awayTeam"]["name"],
+                "date": date,
+                "win": float(PredictionExists[0]["winprob"]),
+                "draw": float(PredictionExists[0]["drawprob"]),
+                "loss": float(PredictionExists[0]["lossprob"])
+                })
+                continue
 
             dataset = FuturematchDataset(date, home_id, away_id, FinishedMatches)
             probs = PredictFutureMatches(model, dataset)[0]
+            Prediction = SavePrediction(connection, probs)
             print("Feature vector:", dataset)
 
             all_matches.append({

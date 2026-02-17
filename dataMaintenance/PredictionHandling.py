@@ -43,12 +43,14 @@ def getPredictionForUI(connection, match_id, model):
     else:
         return Prediction
 
-    
 
 
-
-
-
+def SavePrediction(connection, prob, match_id):
+    timecreated = datetime.now(timezone.utc).date()
+    SavePrediction = Create(connection, 'predictions', 
+    {'matchid': match_id, 'winprob':prob[0], 'drawprob':prob[1], 
+    'lossprob': prob[2], 'predictedhomegoals': None, 'predictedawaygoals': None,
+     'timecreated': timecreated})
 
 
 
