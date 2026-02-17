@@ -177,6 +177,8 @@ def dashboard_data(userid: int):
             # Generate prediction directly
             dataset = FuturematchDataset(date, home_id)
             probs = PredictFutureMatches(model, dataset)[0]
+            print(probs)
+            print(dataset)
 
             all_matches.append({
                 "home": match["homeTeam"]["name"],
