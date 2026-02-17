@@ -187,6 +187,11 @@ def dashboard_data(userid: int):
                 "draw": float(probs[1]),
                 "loss": float(probs[2])
             })
+    return {
+    "status": "success",
+    "matches": all_matches
+    }
+
 
 
          
