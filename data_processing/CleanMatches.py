@@ -106,69 +106,101 @@ def HomeAwayAdvantage(Home):
 
 
 def TeamFeatures(DateFrom, DateTo, Team1, Team2, FuturematchDate, ReturnTeam1, context, matches):
-    #it is possible here to replace DateTO with FuturematchDate as the only purpose of DateTo is for finding the form,however,
-    #keeping separate variables here allows for predictions further into the future to be made 
-    #Get past match data to calculate form
+    """
+    Generates feature vector for either Team1 or Team2.
+
+    context = 1 → Training mode (match already finished)
+    context = 0 → Future prediction mode (match not yet played)
+    """
+
+    # Get past matches
 
     CustomMatchSet1 = SeasonRecord(DateFrom, DateTo, Team1, True, matches)
     CustomMatchSet2 = SeasonRecord(DateFrom, DateTo, Team2, True, matches)
+
     if CustomMatchSet1 == -1 or CustomMatchSet2 == -1:
         return -1
+
     if len(CustomMatchSet1) < 1 or len(CustomMatchSet2) < 1:
         return -1
-    #Calculating what share of overall points each team has as a fraction of combined points
-    H2H = HeadtoHeadMatchStatistics(DateFrom, DateTo, Team1, Team2, matches)#
-    #'HAA'-Home away advantage
-    HAA1 = False
-    HAA2 = False
-    UpcomingMatch = []
-    if context == 0 and Team2 == None:# if context is 0 then this is an actual future prediciton but otherwise it is training data and so all matches will have been scheduled to finished
-        UpcomingMatch, Team2 = GetFutureMatches(Team1, DateTo, True)
+
+    
+    # Head-to-head statistic
+    
+
+    H2H = HeadtoHeadMatchStatistics(DateFrom, DateTo, Team1, Team2, matches)
+
+    
+    # Determine Home/Away
+    
+
+    # CASE 1: FUTURE PREDICTION MODE
+    -----
+    # We ALREADY KNOW:
+    #   Team1 = home team
+    #   Team2 = away team
+    # because FuturematchDataset passes them in that order.
+    #
+    # So we dont need to search for the match again.
+
+    if context == 0:
+        if ReturnTeam1:
+            HAA = 1   # Team1 is home
+        else:
+            HAA = 0   # Team2 is away
+
+
+    # CASE 2: TRAINING MODE
+    -----
+    # For historical matches, we must determine who was home
+    # by looking up the actual finished match.
 
     else:
-        Futurematch = SeasonRecord(DateFrom, DateTo, Team1, True, matches)
-        if Futurematch == -1:
+        UpcomingMatch = None
+
+        # Search within historical matches
+        for match in matches:
+            if match["status"] == "FINISHED":
+                if match["utcDate"][:10] == FuturematchDate:
+                    if (
+                        match["homeTeam"]["id"] == Team1
+                        and match["awayTeam"]["id"] == Team2
+                    ):
+                        UpcomingMatch = match
+                        break
+
+        if UpcomingMatch is None:
             return -1
+
+        if ReturnTeam1:
+            HAA = 1 if UpcomingMatch["homeTeam"]["id"] == Team1 else 0
         else:
-            for Fmatch in Futurematch:
-                if Fmatch["utcDate"][:10] == FuturematchDate:
-                    if Fmatch['homeTeam']['id'] == Team1 or Fmatch['awayTeam']['id'] == Team1:
-                        if Fmatch['homeTeam']['id'] == Team2 or Fmatch['awayTeam']['id'] == Team2:
-                            UpcomingMatch = Fmatch
-    if UpcomingMatch == []:
-        return -1
-        
-    else:
-        if UpcomingMatch['homeTeam']['id'] == Team1:
-            HAA1 = True
-            HAA2 = False
-        else:
-            HAA1 = False
-            HAA2 = True
+            HAA = 1 if UpcomingMatch["homeTeam"]["id"] == Team2 else 0
+
+    
+    # Calculate Features
+    
 
     if ReturnTeam1:
-        #Feature vector for team 1
-        Form1 = CalculateForm(Team1, DateFrom, DateTo, CustomMatchSet1)
-        GSR1 = SeasonGoalScoringRate(DateFrom, DateTo, Team1, matches)
-        GCR1 = SeasonConcedingRate(DateFrom, DateTo, Team1, matches)
-        HAA1 = HomeAwayAdvantage(HAA1)
-        if Form1 == -1 or GSR1 == -1 or GCR1 == -1:
-            return -1
-        else:
+        Form = CalculateForm(Team1, DateFrom, DateTo, CustomMatchSet1)
+        GSR = SeasonGoalScoringRate(DateFrom, DateTo, Team1, matches)
+        GCR = SeasonConcedingRate(DateFrom, DateTo, Team1, matches)
 
-            Team1Feature = [Form1, GSR1, GCR1, HAA1, H2H[0]]
-            return Team1Feature
+        if Form == -1 or GSR == -1 or GCR == -1:
+            return -1
+
+        return [Form, GSR, GCR, HAA, H2H[0]]
+
     else:
-        #Feature vector for team 2
-        Form2 = CalculateForm(Team2, DateFrom, DateTo, CustomMatchSet2)
-        GSR2 = SeasonGoalScoringRate(DateFrom, DateTo, Team2, matches)
-        GCR2 = SeasonConcedingRate(DateFrom, DateTo, Team2, matches)
-        HAA2 = HomeAwayAdvantage(HAA2)
-        if Form2 == -1 or GSR2 == -1 or GCR2 == -1:
-            return -1 
-        else:  
-            Team2Feature = [Form2,GSR2,GCR2,HAA2, H2H[1]]
-            return Team2Feature     
+        Form = CalculateForm(Team2, DateFrom, DateTo, CustomMatchSet2)
+        GSR = SeasonGoalScoringRate(DateFrom, DateTo, Team2, matches)
+        GCR = SeasonConcedingRate(DateFrom, DateTo, Team2, matches)
+
+        if Form == -1 or GSR == -1 or GCR == -1:
+            return -1
+
+        return [Form, GSR, GCR, HAA, H2H[1]]
+   
 
 
 
