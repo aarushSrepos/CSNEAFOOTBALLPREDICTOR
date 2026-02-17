@@ -72,10 +72,10 @@ def MSeasonDataset(seasons):
 
     return np.array(X), np.array(y)
 
-def FuturematchDataset(Date, HomeID, AwayID):
+def FuturematchDataset(Date, HomeID, AwayID, matches):
 
     DateFrom = FiveWeeks(Date)
     print(DateFrom)
-    featureVector = OverallTeamFeature(DateFrom, Date, HomeID, AwayID,None,0, None)
+    featureVector = OverallTeamFeature(DateFrom, Date, HomeID, AwayID,None,0, matches)
     
     return np.array([featureVector])

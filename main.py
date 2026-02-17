@@ -159,12 +159,18 @@ def dashboard_data(userid: int):
         return {"status": "error"}
 
     all_matches = []
+    SeasonMatches = GetMatches(2025)
+    ScheduledMatches = []
+    for match in SeasonMatches:
+        if match["status"] == "TIMED":
+            ScheduledMatches.append(match)
 
     for fav in favourites:
         teamid = fav["teamid"]
 
+        
         #Get all future matches
-        future_matches = GetFutureMatches(teamid, None, False)
+        future_matches = GetFutureMatches(teamid, None, False, ScheduledMatches)
 
         if future_matches is None:
             continue
