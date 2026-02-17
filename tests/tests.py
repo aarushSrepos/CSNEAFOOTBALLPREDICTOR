@@ -1,9 +1,9 @@
 from data_processing.CleanMatches import (CalculateForm, HeadtoHeadMatchStatistics, SeasonGoalScoringRate, SeasonConcedingRate, HomeAwayAdvantage, TeamFeatures)
 from data_collection.DataCollection import GetTeamID, GetMatches
 import time
+from database.DbManager import connect, Create
 
 
-"""
 TEAM_ARSENAL = GetTeamID("Arsenal FC")
 TEAM_CHELSEA = GetTeamID("Chelsea FC")
 
@@ -15,7 +15,7 @@ Seasons = [2023, 2024]
 from MLprediction.prediction import train, evaluate_model, PredictFutureMatches
 from MLprediction.Datasets import FuturematchDataset
 print("Hello")
-model, Ptrain, Ptest = train([2023])
+model, Ptrain, Ptest = train([2022])
 print("1")
 loss, acc = evaluate_model(
     model,
@@ -26,17 +26,19 @@ loss, acc = evaluate_model(
 print("Test log loss:", loss)
 print("Test accuracy:", acc)
 
-X_future = FuturematchDataset('2025-11-1',TEAM_ARSENAL)
-probs, preds, Futurematch = PredictFutureMatches(model, X_future)
+X_future = FuturematchDataset('2025-11-1',TEAM_ARSENAL,TEAM_CHELSEA, None )
+probs = PredictFutureMatches(model, X_future)
+connection = connect()
+Loss = Create(connection, 'Loss', {'LogLoss': loss, 'Accuracy': acc})
+
 sum = probs[0][0] + probs[0][1] + probs[0][2]
-print(f"probabilities of match is {probs} and prediction is {preds}")
 
 print(f"sum of probabilites for success critiria is {sum}")
 
 print(f'model metadata:{model}')
 
 
-"""
+
 """
 from database.DbManager import connect,Create, Read, Update, Delete
 from dataMaintenance.authentication import Passwordhash
@@ -68,7 +70,7 @@ print(DeleteUserData)
 
 
 
-
+"""
 
 from dataMaintenance.PredictionHandling import GetExistingPrediction, update_prediction, CreatePrediction, getPredictionForUI
 from database.DbManager import connect
@@ -76,7 +78,7 @@ import xgboost as xgb
 from dataMaintenance.authentication import login, signup
 from dataMaintenance.UserFavourites import add_favourite_team, remove_favourite_team, get_user_favourites, TeamIDtoTeamname
 from data_collection.DataCollection import GetMatches
-"""
+
 connection = connect()
 model = xgb.Booster()
 model.load_model('MLprediction/models/Model.json')
