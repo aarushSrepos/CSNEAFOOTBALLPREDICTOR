@@ -210,3 +210,22 @@ def dashboard_data(userid: int):
 
 
          
+@app.get('/stats')
+def ModelStatistics():
+    
+    connection = connect()
+    LogAcc = []
+    i = 1
+    while i <4:
+        Stat = Read(connection, 'Loss')
+        if Stat !- -1:
+            LogAcc.append(Stat)
+            i +=
+        else:
+            i +=
+            continue
+
+    return {
+            "status": "success",
+            "statistics": LogAcc
+            }
