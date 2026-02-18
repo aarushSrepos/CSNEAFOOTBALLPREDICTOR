@@ -54,3 +54,12 @@ def SavePrediction(connection, prob, match_id):
 
 
 
+def SaveMatch(connection, match_id, home_id, away_id, match_date):
+    SavedMatch = Create(connection, 'matches', {
+        'matchid': match_id,
+        'hometeamid': home_id,
+        'awayteamid': away_id,
+        'match_date': match_date,
+        'season': 2025
+    })
+

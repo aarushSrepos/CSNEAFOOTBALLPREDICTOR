@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dataMaintenance.authentication import login, signup 
 from database.DbManager import connect, Create, Read,Update, Delete 
-from dataMaintenance.PredictionHandling import GetExistingPrediction, update_prediction, CreatePrediction, getPredictionForUI, SavePrediction
+from dataMaintenance.PredictionHandling import GetExistingPrediction, update_prediction, CreatePrediction, getPredictionForUI, SavePrediction, SaveMatch
 from dataMaintenance.UserFavourites import add_favourite_team, remove_favourite_team, get_user_favourites, TeamIDtoTeamname
 from data_collection.DataCollection import GetFutureMatches, GetMatches
 import xgboost as xgb
@@ -191,7 +191,8 @@ def dashboard_data(userid: int):
 
             dataset = FuturematchDataset(date, home_id, away_id, FinishedMatches)
             probs = PredictFutureMatches(model, dataset)[0]
-            Prediction = SavePrediction(connection, probs)
+            NewMatch = SaveMatch(connection, match['id'], home_id, away_id, date)
+            Prediction = SavePrediction(connection, probs, match['id'])
             print("Feature vector:", dataset)
 
             all_matches.append({
@@ -212,20 +213,28 @@ def dashboard_data(userid: int):
          
 @app.get('/stats')
 def ModelStatistics():
-    
     connection = connect()
-    LogAcc = []
-    i = 1
-    while i <4:
-        Stat = Read(connection, 'Loss')
-        if Stat !- -1:
-            LogAcc.append(Stat)
-            i +=
-        else:
-            i +=
-            continue
+
+    stats = Read(connection, 'Loss')  # should return list of rows
+
+    if stats == -1 or not stats:
+        return {
+            "status": "error",
+            "message": "No log loss or accuracy found"
+        }
+
+    total_log_loss = 0
+    total_accuracy = 0
+
+    for row in stats:
+        total_log_loss += row["LogLoss"]
+        total_accuracy += row["Accuracy"]
+
+    avg_log_loss = total_log_loss / len(stats)
+    avg_accuracy = total_accuracy / len(stats)
 
     return {
-            "status": "success",
-            "statistics": LogAcc
-            }
+        "status": "success",
+        "avgLogLoss": avg_log_loss,
+        "avgAccuracy": avg_accuracy
+    }
